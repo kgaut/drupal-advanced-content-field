@@ -97,7 +97,7 @@ class AdvancedContentWidget extends WidgetBase {
       '#required' => $element['#required'],
     ];
 
-    return $element;
+    return $element['block_plugin'];
   }
 
   public function  massageFormValues(array $values, array $form, FormStateInterface $form_state) {
