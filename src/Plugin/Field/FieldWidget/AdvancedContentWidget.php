@@ -62,8 +62,11 @@ class AdvancedContentWidget extends WidgetBase implements ContainerFactoryPlugin
       '#type' => 'select',
       '#title' => 'Layout',
       '#options' => $this->manager->getFieldLayouts(),
-      '#required' => TRUE,
       '#default_value' => $items[$delta]->layout ?? NULL,
+      '#states' => [
+        'visible' => [$field_type_selector => ['value' => 'image_and_text']],
+        'required' => [$field_type_selector => ['value' => 'image_and_text']],
+      ]
     ];
 
     $element['title'] = [
