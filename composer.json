@@ -1,0 +1,12 @@
+{
+    "name": "kgaut/advanced_content_field",
+    "type": "drupal-module",
+    "description": "Provide a custom field with several template to replace the classic « body » field within an entity",
+    "keywords": ["Drupal"],
+    "homepage": "https://github.com/kgaut/drupal-advanced-content-field",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://github.com/kgaut/drupal-advanced-content-field/issues",
+        "source": "https://github.com/kgaut/drupal-advanced-content-field"
+    }
+}

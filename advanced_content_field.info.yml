@@ -1,0 +1,5 @@
+name: 'Advanced Content Field'
+type: module
+description: 'Provide a custom field with several template to replace the classic « body » field within an entity'
+core: 8.x
+package: 'Field types'
