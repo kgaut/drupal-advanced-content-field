@@ -2,9 +2,12 @@
 
 namespace Drupal\advanced_content_field\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'advanced_content_widget' widget.
@@ -54,6 +57,44 @@ class AdvancedContentWidget extends WidgetBase {
       '#attached' => [
         'library' => ['text/drupal.text'],
       ],
+    ];
+    $element['block_plugin'] = $this->getBlockFormElement($items, $delta, $element, $form, $form_state);
+
+    return $element;
+  }
+
+  public function getBlockFormElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    $item =& $items[$delta];
+    $plugin_ids = $this->fieldDefinition->getSetting('plugin_ids');
+    $options = [];
+    $block_field_manager = \Drupal::service('advanced_content_field.block_manager');
+    $definitions = $block_field_manager->getBlockDefinitions();
+    foreach ($definitions as $id => $definition) {
+      // If allowed plugin ids are set then check that this block should be
+      // included.
+      if ($plugin_ids && !isset($plugin_ids[$id])) {
+        // Remove the definition, so that we have an accurate list of allowed
+        // blocks definitions.
+        unset($definitions[$id]);
+        continue;
+      }
+      $category = (string) $definition['category'];
+      $options[$category][$id] = $definition['admin_label'];
+    }
+
+    // Make sure the plugin id is allowed, if not clear all settings.
+    if ($item->plugin_id && !isset($definitions[$item->plugin_id])) {
+      $item->plugin_id = '';
+      $item->setting = [];
+    }
+
+    $element['block_plugin'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Block'),
+      '#options' => $options,
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => $item->plugin_id,
+      '#required' => $element['#required'],
     ];
 
     return $element;

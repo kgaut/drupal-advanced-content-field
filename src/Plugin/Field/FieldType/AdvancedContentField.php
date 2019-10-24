@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\TypedData\DataReferenceTargetDefinition;
+use Drupal\Core\TypedData\MapDataDefinition;
 
 /**
  * Plugin implementation of the 'advanced_content' field type.
@@ -28,6 +29,7 @@ class AdvancedContentField extends FieldItemBase {
   public static function defaultFieldSettings() {
     return [
         'file_directory' => 'public://',
+        'plugin_ids' => [],
       ] + parent::defaultFieldSettings();
   }
 
@@ -38,6 +40,19 @@ class AdvancedContentField extends FieldItemBase {
   }
 
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
+    $field = $form_state->getFormObject()->getEntity();
+    /** @var \Drupal\advanced_content_field\BlockManager $block_field_manager */
+    $block_field_manager = \Drupal::service('advanced_content_field.block_manager');
+    $definitions = $block_field_manager->getBlockDefinitions();
+    $options = [];
+    foreach ($definitions as $plugin_id => $definition) {
+      $options[$plugin_id] = [
+        ['category' => (string) $definition['category']],
+        ['label' => $definition['admin_label'] . ' (' . $plugin_id . ')'],
+        ['provider' => $definition['provider']],
+      ];
+    }
+
     $element = [];
     $settings = $this->getSettings();
 
@@ -48,6 +63,31 @@ class AdvancedContentField extends FieldItemBase {
       '#description' => t('Optional subdirectory within the upload destination where files will be stored. Do not include preceding or trailing slashes.'),
       '#element_validate' => [[get_class($this), 'validateDirectory']],
       '#weight' => -1,
+    ];
+
+    $element['blocks'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Blocks'),
+      '#description' => $this->t('Please select available blocks.'),
+      '#open' => $field->getSetting('plugin_ids') ? TRUE : FALSE,
+    ];
+
+    $default_value = $field->getSetting('plugin_ids') ?: array_keys($options);
+
+    $element['blocks']['plugin_ids'] = [
+      '#type' => 'tableselect',
+      '#header' => [
+        'Category',
+        'Label/ID',
+        'Provider',
+      ],
+      '#options' => $options,
+      '#js_select' => TRUE,
+      '#required' => TRUE,
+      '#empty' => t('No blocks are available.'),
+      '#parents' => ['settings', 'plugin_ids'],
+      '#element_validate' => [[get_called_class(), 'validatePluginIds']],
+      '#default_value' => array_combine($default_value, $default_value),
     ];
     return $element;
   }
@@ -82,6 +122,9 @@ class AdvancedContentField extends FieldItemBase {
     $properties['body_format'] = DataDefinition::create('filter_format')
       ->setLabel(t('Content format'));
 
+    $properties['block_plugin'] = DataDefinition::create('string')
+      ->setLabel(t('Plugin ID'));
+
     return $properties;
   }
 
@@ -91,6 +134,7 @@ class AdvancedContentField extends FieldItemBase {
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $schema = [
       'columns' => [],
+      'indexes' => ['block_plugin' => ['block_plugin']],
     ];
 
     $schema['columns']['title'] = [
@@ -124,6 +168,12 @@ class AdvancedContentField extends FieldItemBase {
       'not null' => FALSE,
     ];
 
+    $schema['columns']['block_plugin'] = [
+      'description' => 'The block plugin id',
+      'type' => 'varchar',
+      'length' => 255,
+    ];
+
     return $schema;
   }
 
@@ -146,4 +196,17 @@ class AdvancedContentField extends FieldItemBase {
     return ($title === NULL || $title === '') && ($body === NULL || $body === '')  && ($image === NULL || !is_numeric($image)) ;
   }
 
+  /**
+   * Validates plugin_ids table select element.
+   */
+  public static function validatePluginIds(array &$element, FormStateInterface $form_state, &$complete_form) {
+    $value = array_filter($element['#value']);
+    if (array_keys($element['#options']) == array_keys($value)) {
+      $form_state->setValueForElement($element, []);
+    }
+    else {
+      $form_state->setValueForElement($element, $value);
+    }
+    return $element;
+  }
 }
