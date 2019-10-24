@@ -107,6 +107,9 @@ class AdvancedContentField extends FieldItemBase {
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
 
+    $properties['type'] = DataDefinition::create('string')
+      ->setLabel(new TranslatableMarkup('Type'));
+
     $properties['title'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Title'));
 
@@ -136,13 +139,13 @@ class AdvancedContentField extends FieldItemBase {
       'columns' => [],
       'indexes' => ['block_plugin' => ['block_plugin']],
     ];
-    /*
+
     $schema['columns']['type'] = [
       'type' => 'varchar_ascii',
       'length' => 50,
       'not null' => FALSE,
     ];
-    */
+
     $schema['columns']['title'] = [
       'type' => 'varchar_ascii',
       'length' => 255,

@@ -2,6 +2,7 @@
 
 namespace Drupal\advanced_content_field\Plugin\Field\FieldWidget;
 
+use Drupal\advanced_content_field\ACFManager;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
@@ -21,18 +22,54 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   }
  * )
  */
-class AdvancedContentWidget extends WidgetBase {
+class AdvancedContentWidget extends WidgetBase implements ContainerFactoryPluginInterface {
+
+  /** @var \Drupal\advanced_content_field\ACFManager */
+  protected $manager;
+
+  public function setManager(ACFManager $manager) {
+    $this->manager = $manager;
+  }
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['third_party_settings']
+    );
+    $instance->setManager($container->get('advanced_content_field.manager'));
+
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    $field_name = $this->fieldDefinition->getName();
+    $field_type_selector = ':input[name="' . $field_name .'[' . $delta .'][type]"]';
+    $element['type'] = [
+      '#type' => 'select',
+      '#title' => 'Type',
+      '#options' => $this->manager->getFieldTypes(),
+      '#required' => TRUE,
+      '#default_value' => $items[$delta]->type ?? NULL,
+    ];
+
     $element['title'] = [
       '#type' => 'textfield',
       '#title' => t('Title'),
       '#default_value' => isset($items[$delta]->title) ? $items[$delta]->title : NULL,
       '#size' => 120,
       '#maxlength' => 255,
+    ];
+
+    $element['block_plugin'] = $this->getBlockFormElement($items, $delta, $element, $form, $form_state);
+
+    $element['block_plugin']['#states'] = [
+      'visible' => [$field_type_selector => ['value' => 'block']],
     ];
 
     $element['image'] = [
@@ -46,6 +83,9 @@ class AdvancedContentWidget extends WidgetBase {
         'file_validate_is_image' => [],
         'file_validate_extensions' => ['gif png jpg jpeg'],
       ],
+      '#states' => [
+        //'visible' => [$field_type_selector => ['value' => 'image']],
+      ]
     ];
 
     $element['body'] = [
@@ -57,8 +97,13 @@ class AdvancedContentWidget extends WidgetBase {
       '#attached' => [
         'library' => ['text/drupal.text'],
       ],
+      '#states' => [
+        'visible' => [$field_type_selector => [
+          ['value' => 'text'],
+          ['value' => 'image_and_text'],
+        ]],
+      ]
     ];
-    $element['block_plugin'] = $this->getBlockFormElement($items, $delta, $element, $form, $form_state);
 
     return $element;
   }

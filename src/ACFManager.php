@@ -31,6 +31,15 @@ class ACFManager {
     $this->contextRepository = $context_repository;
   }
 
+  public function getFieldTypes() {
+    return [
+      'block' => 'Block',
+      'image' => 'Image',
+      'text' => 'Text',
+      'image_and_text' => 'Image and text',
+    ];
+  }
+
   public function getBlockDefinitions() {
     $definitions = $this->blockManager->getDefinitionsForContexts($this->contextRepository->getAvailableContexts());
     return $this->blockManager->getSortedDefinitions($definitions);
