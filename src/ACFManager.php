@@ -5,9 +5,9 @@ use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 
 /**
- * Class BlockManager.
+ * Class ACFManager.
  */
-class BlockManager {
+class ACFManager {
 
   /**
    * Drupal\Core\Block\BlockManagerInterface definition.

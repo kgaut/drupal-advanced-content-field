@@ -67,7 +67,7 @@ class AdvancedContentWidget extends WidgetBase {
     $item =& $items[$delta];
     $plugin_ids = $this->fieldDefinition->getSetting('plugin_ids');
     $options = [];
-    $block_field_manager = \Drupal::service('advanced_content_field.block_manager');
+    $block_field_manager = \Drupal::service('advanced_content_field.manager');
     $definitions = $block_field_manager->getBlockDefinitions();
     foreach ($definitions as $id => $definition) {
       // If allowed plugin ids are set then check that this block should be

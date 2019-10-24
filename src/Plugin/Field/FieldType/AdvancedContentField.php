@@ -41,8 +41,8 @@ class AdvancedContentField extends FieldItemBase {
 
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $field = $form_state->getFormObject()->getEntity();
-    /** @var \Drupal\advanced_content_field\BlockManager $block_field_manager */
-    $block_field_manager = \Drupal::service('advanced_content_field.block_manager');
+    /** @var \Drupal\advanced_content_field\ACFManager $block_field_manager */
+    $block_field_manager = \Drupal::service('advanced_content_field.manager');
     $definitions = $block_field_manager->getBlockDefinitions();
     $options = [];
     foreach ($definitions as $plugin_id => $definition) {
@@ -136,7 +136,13 @@ class AdvancedContentField extends FieldItemBase {
       'columns' => [],
       'indexes' => ['block_plugin' => ['block_plugin']],
     ];
-
+    /*
+    $schema['columns']['type'] = [
+      'type' => 'varchar_ascii',
+      'length' => 50,
+      'not null' => FALSE,
+    ];
+    */
     $schema['columns']['title'] = [
       'type' => 'varchar_ascii',
       'length' => 255,

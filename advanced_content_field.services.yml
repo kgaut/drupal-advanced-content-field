@@ -1,4 +1,4 @@
 services:
-  advanced_content_field.block_manager:
-    class: Drupal\advanced_content_field\BlockManager
+  advanced_content_field.manager:
+    class: Drupal\advanced_content_field\ACFManager
     arguments: ['@plugin.manager.block', '@context.repository']
