@@ -40,6 +40,15 @@ class ACFManager {
     ];
   }
 
+  public function getFieldLayouts() {
+    return [
+      'image_above_text' => 'Image above text',
+      'image_below_text' => 'Image below text',
+      'image_left_text_right' => 'Image left, text right',
+      'image_right_text_left' => 'Image right, text left',
+    ];
+  }
+
   public function getBlockDefinitions() {
     $definitions = $this->blockManager->getDefinitionsForContexts($this->contextRepository->getAvailableContexts());
     return $this->blockManager->getSortedDefinitions($definitions);

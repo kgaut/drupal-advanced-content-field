@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "advanced_content_formatter",
  *   label = @Translation("Advanced Content"),
  *   field_types = {
- *     "advanced√_content"
+ *     "advanced_content"
  *   }
  * )
  */

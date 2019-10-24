@@ -58,6 +58,14 @@ class AdvancedContentWidget extends WidgetBase implements ContainerFactoryPlugin
       '#default_value' => $items[$delta]->type ?? NULL,
     ];
 
+    $element['layout'] = [
+      '#type' => 'select',
+      '#title' => 'Layout',
+      '#options' => $this->manager->getFieldLayouts(),
+      '#required' => TRUE,
+      '#default_value' => $items[$delta]->layout ?? NULL,
+    ];
+
     $element['title'] = [
       '#type' => 'textfield',
       '#title' => t('Title'),

@@ -110,6 +110,9 @@ class AdvancedContentField extends FieldItemBase {
     $properties['type'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Type'));
 
+    $properties['layout'] = DataDefinition::create('string')
+      ->setLabel(new TranslatableMarkup('Layout'));
+
     $properties['title'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Title'));
 
