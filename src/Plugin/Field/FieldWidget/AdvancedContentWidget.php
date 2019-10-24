@@ -32,6 +32,19 @@ class AdvancedContentWidget extends WidgetBase {
       '#maxlength' => 255,
     ];
 
+    $element['image'] = [
+      '#title' => 'Image',
+      '#type' => 'managed_file',
+      '#default_value' => isset($items[$delta]->image) ? [$items[$delta]->image] : NULL,
+      '#upload_location'  => $items[$delta]->getUploadLocation(),
+      '#multiple' => FALSE,
+      '#description' => t('Allowed extensions: gif png jpg jpeg'),
+      '#upload_validators' => [
+        'file_validate_is_image' => [],
+        'file_validate_extensions' => ['gif png jpg jpeg'],
+      ],
+    ];
+
     $element['body'] = [
       '#type' => 'text_format',
       '#format' => $items[$delta]->body_format ?? 'full_html',
@@ -48,6 +61,7 @@ class AdvancedContentWidget extends WidgetBase {
 
   public function  massageFormValues(array $values, array $form, FormStateInterface $form_state) {
     foreach ($values as &$value) {
+      $value['image'] = \count($value['image']) === 1 ? array_pop($value['image']) : NULL;
       $body = $value['body'];
       $value['body_format'] = $body['format'];
       $value['body'] = $body['value'];
